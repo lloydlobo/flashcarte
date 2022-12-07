@@ -1,13 +1,21 @@
 import DeckDocument from '@/resources/deck/deck.interface';
-import { model, Schema } from 'mongoose';
+import mongoose, { model, Schema } from 'mongoose';
 
-//// const ObjectId = mongoose.Types.ObjectId;
-const DeckSchema = new Schema({
-    title: {
-        type: String,
-        required: true,
+export const ObjectId = mongoose.Types.ObjectId;
+
+const DeckSchema = new Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+        },
+        cards: {
+            type: [String],
+            required: false,
+        },
     },
-});
+    { timestamps: true },
+);
 
 /**
  * @see https://mongoosejs.com/docs/guide.html#models

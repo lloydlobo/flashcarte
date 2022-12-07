@@ -25,7 +25,7 @@ function App() {
     return (
         <div className="App">
             <h1>flashcarte</h1>
-            <form action="submit" onSubmit={(e): void => handleCreateDeck(e)}>
+            <form action="submit" onSubmit={(e) => handleCreateDeck(e)}>
                 {/* clicking on label with A11Y htmlFor + id allows users to click on label and auto-focus the input. */}
                 <div>
                     <label htmlFor="deck-title">Deck Title</label>

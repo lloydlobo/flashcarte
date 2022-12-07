@@ -25,3 +25,4 @@ See the [Live preview here](https://clienturl)
 ## Credits
 
 - [Cody Seibert](https://github.com/codyseibert/flashcardsage)
+- [Jason Merrett](https://github.com/JasonMerrett/nodejs-api-from-scratch/tree/master/src).  <!-- https://www.youtube.com/watch?v=1o9YOHeKhNQ -->

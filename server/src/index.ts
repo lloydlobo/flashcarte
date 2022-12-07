@@ -50,12 +50,3 @@ app.healthcheck();
  * server. Makes it accessible to outside of our App.
  */
 app.listen();
-
-/**
- * Default backend API Endpoints.
- * Method extends 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'.
- * @example
- *     app.get('/user/:id', (req, res) => res.send(req.params.id)); // implicitly `ParamsDictionary`
- *     app.get<ParamsArray>(/user\/(.*)/, (req, res) => res.send(req.params[0]));
- *     app.get<ParamsArray>('/user/*', (req, res) => res.send(req.params[0]));
- */

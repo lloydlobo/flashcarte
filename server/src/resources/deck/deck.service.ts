@@ -5,7 +5,7 @@
  */
 
 import DeckDocument from '@/resources/deck/deck.interface';
-import DeckModel from '@/resources/deck/deck.model';
+import DeckModel, { ObjectId } from '@/resources/deck/deck.model';
 
 /**
  * DeckService class.
@@ -30,16 +30,31 @@ class DeckService {
             throw new Error(`Unable to create deck: ${err}`);
         }
     }
-    public async findOne(
-        title: string,
-        _id: string,
-    ): Promise<
-        (DeckDocument & { _id: import('mongoose').Types.ObjectId }) | undefined
-    > {
+
+    /**
+     * Finds deck documents in collection.
+     * @param  query The query object.
+     * @returns `Promise<(DeckDocument & { _id: import('mongoose').Types.ObjectId })[] | null>`
+     */
+    public async findMany(): Promise<DeckDocument[] | null> {
+        try {
+            /** Creates a `find` query: gets a list of documents that match `filter`. */
+            const decks = await this.deck.find({});
+
+            return decks;
+        } catch (err: unknown) {
+            throw new Error(`Unable to find decks: ${err}`);
+        }
+    }
+
+    /**
+     * Description
+     * @param _id
+     */
+    public async findById(_id: typeof ObjectId): Promise<DeckDocument | null> {
         try {
             /** Finds a single document by its _id field. */
-            const deck = await this.deck.findOne({ title, _id });
-            if (!deck) return;
+            const deck = await this.deck.findById(_id);
             return deck;
         } catch (err: unknown) {
             throw new Error(`Unable to find deck: ${err}`);

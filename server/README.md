@@ -13,3 +13,7 @@ npm i -D typescript tsc-watch prettier eslint eslint-plugin-prettier eslint-conf
 ```shell
 npm i -D @types/node @types/express @types/compression @types/cors @types/morgan @types/module-alias
 ```
+
+## References
+
+- <https://youtu.be/1o9YOHeKhNQ?t=4452>

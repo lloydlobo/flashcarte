@@ -26,6 +26,14 @@ class DeckController implements Controller {
     }
 
     /**
+     * Default backend API Endpoints.
+     * Method extends 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'.
+     * @example
+     *     app.get('/user/:id', (req, res) => res.send(req.params.id)); // implicitly `ParamsDictionary`
+     *     app.get<ParamsArray>(/user\/(.*)/, (req, res) => res.send(req.params[0]));
+     *     app.get<ParamsArray>('/user/*', (req, res) => res.send(req.params[0]));
+     */
+    /**
      * Initializes the routes for the DeckController.
      * To create resources use path that follows REST API paradigm.
      * * For Example, to create a deck use path: `/decks`.
@@ -36,6 +44,7 @@ class DeckController implements Controller {
      * this.express.use('/api', controller.router);
      * ```
      * @see https://youtu.be/1o9YOHeKhNQ?t=4452
+     * @see https://github.com/JasonMerrett/nodejs-api-from-scratch/blob/master/src/resources/user/user.controller.ts
      */
     private initializeRoutes(): void {
         /**
@@ -43,11 +52,8 @@ class DeckController implements Controller {
          * @param validationMiddleware(validate.create) Validate request body against schema.
          * @param this.create Create a new resource with request handler.
          */
-        this.router.post(
-            `${this.path}`,
-            validationMiddleware(validate.create),
-            this.create,
-        );
+        this.router.post( `${this.path}`, validationMiddleware(validate.create), this.create,); // prettier-ignore
+        this.router.get(`${this.path}`, this.findMany);
     }
 
     /**
@@ -64,20 +70,30 @@ class DeckController implements Controller {
     ): Promise<Response | void> => {
         try {
             const { title } = req.body;
-            console.log(title);
             /**
-             * When using a service, creating deck somwehere else, nice to have it
-             * inside a ServiceWorker, and not a request handler.  For emails, send
-             * it as a part of a queue.  Do not send request to your own api.
+             * When using a service, creating deck somwehere else, nice to have it inside a ServiceWorker, and not a request handler.
+             * For emails, send it as a part of a queue.  Do not send request to your own api.
              * @param title
              */
             const deck = await this.DeckService.create(title);
 
-            res.status(201).json({
-                deck: deck,
-            });
+            res.status(201).json({ deck: deck });
         } catch (err) {
             next(new HttpException(400, `Cannot create deck: ${err}`));
+        }
+    };
+
+    private findMany = async (
+        _req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response | void> => {
+        try {
+            const decks = await this.DeckService.findMany();
+
+            res.status(201).json({ decks: decks });
+        } catch (err) {
+            next(new HttpException(400, `Cannot find decks: ${err}`));
         }
     };
 
