@@ -1,10 +1,17 @@
 import {
-    AppShell, Autocomplete, Burger, Button, Card, CloseButton, Container, createStyles, Flex, Footer,
-    Group, Header, Image, MantineProvider, MantineTheme, MediaQuery, Navbar, NavLink, SimpleGrid, Space,
-    Text, TextInput, Title, useMantineTheme
+  ActionIcon, Anchor, AppShell, Autocomplete, Burger, Button, Card, Center, CloseButton, Container, createStyles, Flex, Footer,
+  Group, Header, Image, MantineProvider, MantineTheme, MediaQuery, Navbar, NavLink, SimpleGrid, Space,
+  Text, TextInput, Title, useMantineTheme
 } from '@mantine/core'; // prettier-ignore
 import { useDisclosure } from '@mantine/hooks';
-import { IconCards, IconSearch, IconStack2 } from '@tabler/icons';
+import {
+  IconBrandInstagram,
+  IconBrandTwitter,
+  IconBrandYoutube,
+  IconCards,
+  IconSearch,
+  IconStack2,
+} from '@tabler/icons';
 import { ChangeEvent, Dispatch, FormEvent, ReactNode, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -197,7 +204,7 @@ export function HeaderSearch({
 
   return (
     <div className={classes.inner}>
-      <Group>
+      <Group align="center">
         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
           <Burger
             opened={opened}
@@ -207,15 +214,33 @@ export function HeaderSearch({
             }}
             size="sm"
             color={theme.colors.gray[6]}
-            mr="xl"
+            // mr="xl"
           />
         </MediaQuery>
-        <Flex gap={2} align="start">
-          <IconCards size={20} />
-          <Text fz={theme.fontSizes.md} fw={700}>
-            {BRAND.name}
-          </Text>
-        </Flex>
+
+        <Anchor<'a'>
+          color="dimmed"
+          href={'/'}
+          underline={false}
+          sx={{ lineHeight: 1 }}
+          // onClick={(event) => event.preventDefault()}
+          size="sm"
+        >
+          <Group align="center">
+            <Flex
+              title="brand-logo"
+              gap={4}
+              align="start"
+              justify="center"
+              pt={4}
+            >
+              <IconCards size={20} />
+              <Text fz={theme.fontSizes.md} fw={700}>
+                {BRAND.name}
+              </Text>
+            </Flex>
+          </Group>
+        </Anchor>
       </Group>
 
       <Group>
@@ -242,6 +267,13 @@ export function HeaderSearch({
   );
 }
 
+/** Layout AppShell.
+ *
+ * * Alt layout -
+ *   To place Navbar and Aside components above Header and Footer, set layout="alt" on AppShell.
+ *
+ * @see https://mantine.dev/core/app-shell/#responsive-styles
+ */
 export function Layout({ children }: { children: ReactNode }) {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
@@ -256,6 +288,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <AppShell // https://mantine.dev/core/app-shell/#responsive-styles
         padding="md"
         navbarOffsetBreakpoint="sm"
+        layout="default"
         // asideOffsetBreakpoint="sm"
         // style={{ backgroundImage: 'url(/myGrayBackgroundImage.png)' }}
         styles={(theme) => ({
@@ -263,6 +296,29 @@ export function Layout({ children }: { children: ReactNode }) {
             backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
           }, // prettier-ignore
         })}
+        header={
+          <Header height={{ base: 50, md: 70 }} p="md">
+            <div className="item-center flex h-full">
+              <HeaderSearch
+                links={[{ label: 'Docs', link: '/docs' }]}
+                theme={theme}
+                setOpened={setOpened}
+              />
+            </div>
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+            />
+          </Header>
+        }
         navbar={
           <Navbar
             p="xs"
@@ -281,32 +337,6 @@ export function Layout({ children }: { children: ReactNode }) {
             />
           </Navbar>
         }
-        header={
-          <Header height={{ base: 50, md: 70 }} p="md">
-            <div
-              style={{ display: 'flex', alignItems: 'center', height: '100%' }}
-            >
-              <HeaderSearch
-                links={[{ label: 'Docs', link: '/docs' }]}
-                theme={theme}
-                setOpened={setOpened}
-              />
-              {/* <Text>{BRAND.name}</Text> */}
-            </div>
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="dark"
-            />
-          </Header>
-        }
         // aside={
         //   <MediaQuery className="hidden" smallerThan="sm" styles={{ display: 'none' }} >
         //     <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
@@ -315,12 +345,10 @@ export function Layout({ children }: { children: ReactNode }) {
         //   </MediaQuery>
         // }
         footer={
-          <Footer height={60} p="md">
-            <Flex align={'center'} gap={4}>
-              <Text fz={'xs'}>&copy;</Text>
-              <Text>{new Date().getFullYear()}</Text>
-              <Text>{BRAND.name}</Text>
-            </Flex>
+          <Footer p="md" height={{ base: '90', sm: '70' }}>
+            <FooterCentered
+              links={[ { link: '#', label: 'Contact' }, { link: '#', label: 'Privacy' }, { link: '#', label: 'Blog' }, { link: '#', label: 'Store' }, { link: '#', label: 'Careers' }, ]} // prettier-ignore
+            />
           </Footer>
         }
       >
@@ -345,3 +373,97 @@ const notify = (content: string) =>
     progress: undefined,
     theme: 'dark',
   });
+
+const useStylesFooter = createStyles((theme) => ({
+  footer: {
+    marginTop: 120,
+    borderTop: `1px solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
+    }`,
+  },
+  inner: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // padding: `${theme.spacing.md}px ${theme.spacing.md}px`,
+    [theme.fn.smallerThan('sm')]: {
+      flexDirection: 'column',
+    },
+  },
+  social: {
+    [theme.fn.smallerThan('sm')]: {
+      display: 'none',
+    },
+  },
+  links: {
+    [theme.fn.smallerThan('sm')]: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
+    },
+  },
+}));
+
+interface FooterCenteredProps {
+  links: { link: string; label: string }[];
+}
+
+export function FooterCentered({
+  links,
+}: {
+  links: FooterCenteredProps['links'];
+}) {
+  const { classes } = useStylesFooter();
+  const items = links.map((link) => (
+    <Anchor<'a'>
+      color="dimmed"
+      key={link.label}
+      href={link.link}
+      sx={{ lineHeight: 1 }}
+      onClick={(event) => event.preventDefault()}
+      size="sm"
+    >
+      {link.label}
+    </Anchor>
+  ));
+
+  return (
+    <>
+      {/* <div className={classes.footer}> */}
+      <div className={classes.inner}>
+        <Flex align="center" justify="center" gap="sm">
+          <Anchor<'a'>
+            color="dimmed"
+            href={'/'}
+            sx={{ lineHeight: 1 }}
+            // onClick={(event) => event.preventDefault()}
+            size="sm"
+          >
+            <ActionIcon variant="subtle">
+              <IconCards size={28} />
+            </ActionIcon>
+          </Anchor>
+          <Flex className="opacity-70" align="center" pt={2} gap={4}>
+            <Text>&copy;</Text>
+            <Text>{new Date().getFullYear()}</Text>
+            <Text>{BRAND.name}</Text>
+          </Flex>
+        </Flex>
+
+        <Group className={classes.links}>{items}</Group>
+
+        <Group spacing="xs" position="right" noWrap className={classes.social}>
+          <ActionIcon size="lg" variant="default" radius="xl">
+            <IconBrandTwitter size={18} stroke={1.5} />
+          </ActionIcon>
+          <ActionIcon size="lg" variant="default" radius="xl">
+            <IconBrandYoutube size={18} stroke={1.5} />
+          </ActionIcon>
+          <ActionIcon size="lg" variant="default" radius="xl">
+            <IconBrandInstagram size={18} stroke={1.5} />
+          </ActionIcon>
+        </Group>
+      </div>
+      {/* </div> */}
+    </>
+  );
+}
