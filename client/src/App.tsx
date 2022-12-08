@@ -6,14 +6,14 @@ import {
   IconBrandInstagram, IconBrandTwitter, IconBrandYoutube, IconCards, IconMoonStars, IconSearch, IconStack2, IconSun
 } from '@tabler/icons'; // prettier-ignore
 import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+  QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient
+} from '@tanstack/react-query'; // prettier-ignore
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ChangeEvent, Dispatch, FormEvent, ReactNode, useState } from 'react';
+import format from 'date-fns/format';
+import { enGB } from 'date-fns/locale';
+import {
+  ChangeEvent, CSSProperties, Dispatch, FormEvent, ReactNode, useState
+} from 'react'; // prettier-ignore
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -51,6 +51,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+export default App;
 
 export function AppLayoutShell() {
   const [title, setTitle] = useState('');
@@ -87,10 +88,10 @@ export function AppLayoutShell() {
   return (
     <Layout>
       <section id="hero">
-        {/* prettier-ignore */}
-        <Container mt={24}>
+        <HeroSection>
+          {/* prettier-ignore */}
+          <Container mt={24}>
           <Title hidden order={1}>{BRAND.name}</Title>
-
           <form action="submit" onSubmit={(e) => handleCreateDeck(e)}>
             {/* clicking on label with A11Y htmlFor + id allows users to click on label and auto-focus the input. */}
             <Flex align={'end'} gap={'sm'} direction={{ base: 'column', md: 'row' }}>
@@ -105,8 +106,11 @@ export function AppLayoutShell() {
           </form>
 
         </Container>
+        </HeroSection>
       </section>
+
       <Space h="xl" />
+
       <section id="decks">
         <Container>
           {query.data?.decks.length ? (
@@ -134,11 +138,279 @@ export function AppLayoutShell() {
           )}
         </Container>
       </section>
+      <section></section>
     </Layout>
   );
 }
 
-export default App;
+export function Dots({
+  className,
+  style,
+}: {
+  className?: string;
+  style: CSSProperties | undefined;
+}): JSX.Element {
+  return (
+    <svg
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 185 185"
+      width="185"
+      height="185"
+      className={className}
+      style={style}
+    >
+      <rect width="5" height="5" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" rx="2.5"></rect>
+      <rect width="5" height="5" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="20" rx="2.5"></rect>
+      <rect width="5" height="5" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="40" rx="2.5"></rect>
+      <rect width="5" height="5" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="60" rx="2.5"></rect>
+      <rect width="5" height="5" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="80" rx="2.5"></rect>
+      <rect width="5" height="5" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="100" rx="2.5"></rect>
+      <rect width="5" height="5" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="120" rx="2.5"></rect>
+      <rect width="5" height="5" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="140" rx="2.5"></rect>
+      <rect width="5" height="5" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="160" rx="2.5"></rect>
+      <rect width="5" height="5" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="60" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="120" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="20" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="80" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="140" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="40" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="100" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="160" y="180" rx="2.5"></rect>
+      <rect width="5" height="5" x="180" y="180" rx="2.5"></rect>
+    </svg>
+  );
+}
+
+const useStylesHeroText = createStyles((theme) => ({
+  wrapper: {
+    position: 'relative',
+    paddingTop: 120 / 3,
+    paddingBottom: 80 / 2,
+
+    '@media (max-width: 755px)': {
+      paddingTop: 80,
+      paddingBottom: 60,
+    },
+  },
+
+  inner: {
+    position: 'relative',
+    zIndex: 1,
+  },
+
+  dots: {
+    position: 'absolute',
+    color:
+      theme.colorScheme === 'dark'
+        ? theme.colors.dark[5]
+        : theme.colors.gray[1],
+
+    '@media (max-width: 755px)': {
+      display: 'none',
+    },
+  },
+
+  dotsLeft: {
+    left: 0,
+    top: 0,
+  },
+
+  title: {
+    textAlign: 'center',
+    fontWeight: 800,
+    fontSize: 40,
+    letterSpacing: -1,
+    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
+    marginBottom: theme.spacing.xs,
+    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+
+    '@media (max-width: 520px)': {
+      fontSize: 28,
+      textAlign: 'left',
+    },
+  },
+
+  highlight: {
+    color:
+      theme.colors[theme.primaryColor][theme.colorScheme === 'dark' ? 4 : 6],
+  },
+
+  description: {
+    textAlign: 'center',
+
+    '@media (max-width: 520px)': {
+      textAlign: 'left',
+      fontSize: theme.fontSizes.md,
+    },
+  },
+
+  controls: {
+    marginTop: theme.spacing.lg,
+    display: 'flex',
+    justifyContent: 'center',
+
+    '@media (max-width: 520px)': {
+      flexDirection: 'column',
+    },
+  },
+
+  control: {
+    '&:not(:first-of-type)': {
+      marginLeft: theme.spacing.md,
+    },
+
+    '@media (max-width: 520px)': {
+      height: 42,
+      fontSize: theme.fontSizes.md,
+
+      '&:not(:first-of-type)': {
+        marginTop: theme.spacing.md,
+        marginLeft: 0,
+      },
+    },
+  },
+}));
+
+export function HeroSection({ children }: { children: ReactNode }) {
+  const { classes } = useStylesHeroText();
+
+  const { day, month, year } = getYearMonthDay();
+
+  const dayString = Number(day);
+
+  /** @see https://stackoverflow.com/a/62510681 */
+  let suffix =
+    (dayString >= 4 && dayString <= 20) || (dayString >= 24 && dayString <= 30)
+      ? 'th'
+      : ['st', 'nd', 'rd'][(dayString % 10) - 1];
+
+  return (
+    <Container className={classes.wrapper} size={1400}>
+      <Dots className={classes.dots} style={{ left: 0, top: 0 }} />
+      <Dots className={classes.dots} style={{ left: 60, top: 0 }} />
+      <Dots className={classes.dots} style={{ left: 0, top: 140 }} />
+      <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
+
+      <div className={classes.inner}>
+        <Title className={classes.title}>
+          {month}{' '}
+          <Text component="span" className={classes.highlight} inherit>
+            {`${day}${suffix}`}
+          </Text>
+          {', '}
+          {year}{' '}
+        </Title>
+        {children}
+
+        <Container p={0} size={600}>
+          <Text hidden size="lg" color="dimmed" className={classes.description}>
+            Build more reliable software with AI companion. AI is also trained
+            to detect lazy developers who do nothing and just complain on
+            Twitter.
+          </Text>
+        </Container>
+
+        <div hidden className={classes.controls}>
+          <Button
+            className={classes.control}
+            size="lg"
+            variant="default"
+            color="gray"
+          >
+            Book a demo
+          </Button>
+          <Button className={classes.control} size="lg">
+            Purchase a license
+          </Button>
+        </div>
+      </div>
+    </Container>
+  );
+}
 
 export function DeckCard({
   title,
@@ -498,4 +770,43 @@ export function FooterCentered({
       {/* </div> */}
     </>
   );
+}
+
+// TODO Add all types and remove 'any' from `formatStr` types.
+type DateFNSFormat = 'LLL' | 'LLLL' | 'LLLLL' | 'MMM' | 'MMMM' | 'MMMMM';
+/**
+ * Parses current month in string of loale english enGB.
+ *
+ * @param formatStr The format to parse in.
+ *
+ * LLL: Jan, Feb, ..., Dec
+ * LLLL: January, February, ..., December
+ * LLLLL: J, F, ..., D
+ * MMM: Jan, Feb, ..., Dec
+ * MMMM: January, February, ..., December
+ * MMMMM: J, F, ..., D
+ * @see https://date-fns.org/v2.14.0/docs/format
+ */
+export function parseCurrentDateString(formatStr: any | DateFNSFormat): string {
+  const date = new Date();
+  return format(
+    new Date(date.getFullYear(), date.getMonth(), date.getDate()),
+    formatStr,
+    { locale: enGB },
+  );
+}
+
+/**
+ * Returns the current year, month, and day as english character string.
+ */
+export function getYearMonthDay(): {
+  day: string;
+  month: string;
+  year: string;
+} {
+  return {
+    day: parseCurrentDateString('dd'),
+    month: parseCurrentDateString('MMMM'),
+    year: parseCurrentDateString('yyyy'),
+  };
 }
