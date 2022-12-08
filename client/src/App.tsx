@@ -94,14 +94,14 @@ export function AppLayoutShell() {
           <Title hidden order={1}>{BRAND.name}</Title>
           <form action="submit" onSubmit={(e) => handleCreateDeck(e)}>
             {/* clicking on label with A11Y htmlFor + id allows users to click on label and auto-focus the input. */}
-            <Flex align={'end'} gap={'sm'} direction={{ base: 'column', md: 'row' }}>
+            <Flex align={{  md: 'flex-end' }}  gap={'sm'} direction={{ base: 'column', md: 'row' }}>
               <TextInput label="Deck Title"
                 placeholder="Enter the title of your deck"
                 className="w-full text-start"
                 value={title}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value) } // prettier-ignore
               />
-              <Button variant="outline" type="submit">Create Deck</Button>
+              <Button variant="gradient" type="submit">Create Deck</Button>
             </Flex>
           </form>
 
@@ -315,8 +315,19 @@ const useStylesHeroText = createStyles((theme) => ({
   },
 
   highlight: {
-    color:
-      theme.colors[theme.primaryColor][theme.colorScheme === 'dark' ? 4 : 6],
+    // color:
+    //   theme.colors[theme.primaryColor][theme.colorScheme === 'dark' ? 4 : 6],
+    backgroundImage: theme.fn.gradient({
+      from: theme.fn.rgba(theme.colors.blue[9], 0.98),
+      to: theme.fn.rgba(theme.colors.cyan[3], 0.8),
+      deg: 90,
+    }),
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundSize: '100% 200%',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
   },
 
   description: {
@@ -378,7 +389,11 @@ export function HeroSection({ children }: { children: ReactNode }) {
       <div className={classes.inner}>
         <Title className={classes.title}>
           {month}{' '}
-          <Text component="span" className={classes.highlight} inherit>
+          <Text
+            component="span"
+            className={`${classes.highlight}  text-black`}
+            inherit
+          >
             {`${day}${suffix}`}
           </Text>
           {', '}
@@ -428,27 +443,28 @@ export function DeckCard({
       href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       target="_blank"
     >
-      <Card.Section p={4}>
+      <Card.Section px={2} py={2}>
         <Image
           src="https://images.unsplash.com/photo-1579227114347-15d08fc37cae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2550&q=80"
           height={80}
           alt="No way!"
           hidden
         />
-        <Group position="apart">
-          <Text size="xs" color="dimmed"></Text>
+        <div className="grid">
           <CloseButton
             type="button"
+            size={'sm'}
+            className="items-end place-self-end opacity-40 hover:opacity-100"
             onClick={(e) => {
               e.preventDefault();
             }}
           />
-        </Group>
+        </div>
       </Card.Section>
 
-      <Text weight={500} size="sm">
+      <Title order={2} size={'h4'} align="center">
         {title}
-      </Text>
+      </Title>
 
       <Text hidden mt="xs" color="dimmed" size="xs"></Text>
     </Card>
@@ -592,7 +608,7 @@ export function HeaderSearch({
         />
         <Group position="center" my={30}>
           <ActionIcon
-            variant="subtle"
+            variant="default"
             // color={dark ? 'yellow' : 'blue'}
             onClick={() => toggleColorScheme()}
             title="Toggle color scheme"
