@@ -59,6 +59,7 @@ class App {
      */
     private initializeMiddleware(): void {
         this.express.use(helmet()); // Prevent common attacks on API calls.
+        // this.express.use(cors({ origin: 'http://flashcarte.com' })); // Node.js CORS middleware.
         this.express.use(cors({ origin: '*' })); // Node.js CORS middleware.
         this.express.use(morgan('dev')); // Concise output colored by response status for development use.
         this.express.use(express.json()); // Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.

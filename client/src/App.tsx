@@ -1,5 +1,7 @@
+import { ChangeEvent, Dispatch, FormEvent, ReactNode, useState } from 'react';
+
 import {
-  ActionIcon, Anchor, AppShell, Autocomplete, Burger, Button, Card, CloseButton, ColorScheme, ColorSchemeProvider, Container, createStyles, Flex, Footer, Group, Header, Image, MantineProvider, MediaQuery, Navbar, NavLink, SimpleGrid, Space, Text, TextInput, Title, useMantineColorScheme, useMantineTheme
+  ActionIcon, Anchor, AppShell, Autocomplete, Burger, Button, Card, Center, CloseButton, ColorScheme, ColorSchemeProvider, Container, createStyles, Flex, Footer, Group, Header, Image, MantineProvider, MediaQuery, Navbar, NavLink, SimpleGrid, Space, Text, TextInput, Title, useMantineColorScheme, useMantineTheme
 } from '@mantine/core'; // prettier-ignore
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -11,39 +13,34 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import format from 'date-fns/format';
 import { enGB } from 'date-fns/locale';
-import {
-  ChangeEvent, CSSProperties, Dispatch, FormEvent, ReactNode, useState
-} from 'react'; // prettier-ignore
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export async function fetchDecks() {
-  const data = await fetch(`http://localhost:8080/api/decks`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  })
-    .then((response) => response.json())
-    .catch((err) => console.error(err));
+import { DndList } from './components/DndList';
+import { Sortable } from './components/sortable/Sortable';
+import { Dots } from './components/ui/Dots';
+import { useColorSchemeState } from './lib/hooks/ui/useColorSchemeState';
 
-  return { decks: data.decks };
-}
-
-export async function deleteDeck() {
-  throw new Error('deleteDeck not implemented.');
-}
-
-// Create a client
+/** Create a client */
 const queryClient = new QueryClient();
 
-function App() {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-  // prettier-ignore
+/**
+ * App Starts the application.
+ */
+function App(): JSX.Element {
+  const { colorScheme, toggleColorScheme } = useColorSchemeState();
+
   return (
     <QueryClientProvider client={queryClient}>
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-        <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
+      <ColorSchemeProvider
+        colorScheme={colorScheme}
+        toggleColorScheme={toggleColorScheme}
+      >
+        <MantineProvider
+          theme={{ colorScheme }}
+          withGlobalStyles
+          withNormalizeCSS
+        >
           <AppLayoutShell />
         </MantineProvider>
       </ColorSchemeProvider>
@@ -53,6 +50,47 @@ function App() {
 }
 export default App;
 
+/**
+ * fetchApi is a wrapper for the fetch API.
+ * Fetches the data from the API and returns the response.
+ * @param path The URL endpoint to fetch.
+ * @param options The options to pass to the fetch API.
+ */
+export async function fetchAPI<ResultType>(
+  path: RequestInit & string,
+  options?: Partial<RequestInit>,
+): Promise<ResultType | void> {
+  try {
+    const response: Response = await fetch(`http://localhost:8080/api${path}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
+    return await response.json();
+  } catch (err) {
+    console.error(`Error fetching ${path}`, err);
+  }
+}
+
+/**
+ * Delete a deck.
+ *
+ * @param {string} deckId - The deck ID.
+ * @returns {Promise<void>}
+ */
+export async function deleteDeck() {
+  throw new Error('deleteDeck not implemented.');
+}
+
+export type TResponseDecks = {
+  decks: IDeck[];
+};
+
+export interface IDeck {
+  _id: string;
+  title: string;
+}
+
 export function AppLayoutShell() {
   const [title, setTitle] = useState('');
 
@@ -61,7 +99,7 @@ export function AppLayoutShell() {
   /** Queries. */
   const query = useQuery({
     queryKey: ['decks'],
-    queryFn: fetchDecks,
+    queryFn: () => fetchAPI<TResponseDecks>(`/decks`),
   });
   /** Mutations. */
   const mutation = useMutation({
@@ -76,11 +114,12 @@ export function AppLayoutShell() {
     e.preventDefault(); // Tell HTML to avoid clearing the form.
     const updated = await fetch('http://localhost:8080/api/decks', {
       method: 'POST',
-      body: JSON.stringify({ title: title }),
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title }),
     })
       .then((res: Response) => res.json())
       .catch((err: any) => console.error('Failed to create deck.', err));
+
     notify(`Created ${updated.deck.title}`);
     setTitle('');
   }
@@ -89,23 +128,31 @@ export function AppLayoutShell() {
     <Layout>
       <section id="hero">
         <HeroSection>
-          {/* prettier-ignore */}
           <Container mt={24}>
-          <Title hidden order={1}>{BRAND.name}</Title>
-          <form action="submit" onSubmit={(e) => handleCreateDeck(e)}>
-            {/* clicking on label with A11Y htmlFor + id allows users to click on label and auto-focus the input. */}
-            <Flex align={{  md: 'flex-end' }}  gap={'sm'} direction={{ base: 'column', md: 'row' }}>
-              <TextInput label="Deck Title"
-                placeholder="Enter the title of your deck"
-                className="w-full text-start"
-                value={title}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value) } // prettier-ignore
-              />
-              <Button variant="gradient" type="submit">Create Deck</Button>
-            </Flex>
-          </form>
+            <Title hidden order={1}>
+              {BRAND.name}
+            </Title>
 
-        </Container>
+            <form action="submit" onSubmit={(e) => handleCreateDeck(e)}>
+              {/* clicking on label with A11Y htmlFor + id allows users to click on label and auto-focus the input. */}
+              <Flex
+                align={{ md: 'flex-end' }}
+                gap={'sm'}
+                direction={{ base: 'column', md: 'row' }}
+              >
+                <TextInput
+                  label="Deck Title"
+                  placeholder="Enter the title of your deck"
+                  className="w-full text-start"
+                  value={title}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value) } // prettier-ignore
+                />
+                <Button variant="gradient" type="submit">
+                  Create Deck
+                </Button>
+              </Flex>
+            </form>
+          </Container>
         </HeroSection>
       </section>
 
@@ -120,13 +167,13 @@ export function AppLayoutShell() {
               breakpoints={[
                 { maxWidth: 980, cols: 3, spacing: 'md' },
                 { maxWidth: 755, cols: 2, spacing: 'sm' },
-                { maxWidth: 600, cols: 1, spacing: 'sm' },
+                { maxWidth: 600, cols: 2, spacing: 'sm' },
               ]}
             >
               {query.data.decks.map(
-                (deck: { _id: any; title: string }, index: number) => (
+                (deck: IDeck, index: number): JSX.Element => (
                   <DeckCard
-                    key={`deck__${deck._id}}__${index}`}
+                    key={`deck-${deck._id}}-${index}`}
                     title={deck.title}
                     mutation={mutation}
                   />
@@ -138,133 +185,35 @@ export function AppLayoutShell() {
           )}
         </Container>
       </section>
-      <section></section>
+
+      <Space h="xl" />
+
+      <section>{/* <Sortable /> */}</section>
+
+      <Space h="xl" />
+
+      <section>
+        <>
+          <Center>
+            <Container>
+              <SimpleGrid
+                cols={4}
+                spacing="lg"
+                breakpoints={[
+                  { maxWidth: 980, cols: 3, spacing: 'md' },
+                  { maxWidth: 755, cols: 2, spacing: 'sm' },
+                  { maxWidth: 600, cols: 1, spacing: 'sm' },
+                ]}
+              >
+                <DndList />
+              </SimpleGrid>
+            </Container>
+          </Center>
+        </>
+      </section>
     </Layout>
   );
 }
-
-export function Dots({
-  className,
-  style,
-}: {
-  className?: string;
-  style: CSSProperties | undefined;
-}): JSX.Element {
-  return (
-    <svg
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
-      viewBox="0 0 185 185"
-      width="185"
-      height="185"
-      className={className}
-      style={style}
-    >
-      <rect width="5" height="5" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" rx="2.5"></rect>
-      <rect width="5" height="5" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="20" rx="2.5"></rect>
-      <rect width="5" height="5" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="40" rx="2.5"></rect>
-      <rect width="5" height="5" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="60" rx="2.5"></rect>
-      <rect width="5" height="5" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="80" rx="2.5"></rect>
-      <rect width="5" height="5" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="100" rx="2.5"></rect>
-      <rect width="5" height="5" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="120" rx="2.5"></rect>
-      <rect width="5" height="5" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="140" rx="2.5"></rect>
-      <rect width="5" height="5" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="160" rx="2.5"></rect>
-      <rect width="5" height="5" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="60" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="120" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="20" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="80" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="140" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="40" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="100" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="160" y="180" rx="2.5"></rect>
-      <rect width="5" height="5" x="180" y="180" rx="2.5"></rect>
-    </svg>
-  );
-}
-
 const useStylesHeroText = createStyles((theme) => ({
   wrapper: {
     position: 'relative',
@@ -387,18 +336,20 @@ export function HeroSection({ children }: { children: ReactNode }) {
       <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
 
       <div className={classes.inner}>
-        <Title className={classes.title}>
-          {month}{' '}
-          <Text
-            component="span"
-            className={`${classes.highlight}  text-black`}
-            inherit
-          >
-            {`${day}${suffix}`}
-          </Text>
-          {', '}
-          {year}{' '}
-        </Title>
+        <Center>
+          <Title className={classes.title}>
+            {month}{' '}
+            <Text
+              component="span"
+              className={`${classes.highlight}  text-black`}
+              inherit
+            >
+              {`${day}${suffix}`}
+            </Text>
+            {', '}
+            {year}{' '}
+          </Title>
+        </Center>
         {children}
 
         <Container p={0} size={600}>
@@ -438,7 +389,9 @@ export function DeckCard({
     // <Paper withBorder p="md" radius="md">
     <Card
       shadow="sm"
+      radius={14}
       p="xl"
+      withBorder
       component="a"
       href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       target="_blank"
@@ -462,7 +415,7 @@ export function DeckCard({
         </div>
       </Card.Section>
 
-      <Title order={2} size={'h4'} align="center">
+      <Title order={2} size={'h5'} align="center">
         {title}
       </Title>
 
