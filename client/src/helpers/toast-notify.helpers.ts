@@ -5,8 +5,8 @@ import { toast } from 'react-toastify';
  *
  * @param content The content of the toast.
  */
-export function toastNotify(content: string) {
-  return toast(content, {
+export async function toastNotify(content: string) {
+  return await toast(content, {
     position: 'top-right',
     autoClose: 2000,
     hideProgressBar: false,

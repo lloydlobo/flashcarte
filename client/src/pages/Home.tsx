@@ -10,20 +10,22 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DeckCard, fetchAPI, IDeck, TResponseDecks } from '../components/Decks';
 import { DndList, TContainerDnD } from '../components/DndList';
+import { HeroSection } from '../components/ui/Hero';
 import { BRAND } from '../constants/brand.constants';
 import { Layout } from '../layout/Layout';
-import { HeroSection } from '../components/ui/Hero';
 import { toastNotify } from '../helpers/toast-notify.helpers';
+
+function postNewDeck(title: IDeck['title']): Promise<any> {
+  return fetch('http://localhost:8080/api/decks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title }),
+  }).then((response) => response.json());
+} //// .then(async () => { await console.log(`Deck ${newDeckTitle} created`) });
 
 export function Home() {
   const [title, setTitle] = useState<string>('');
@@ -38,40 +40,38 @@ export function Home() {
     queryFn: () => fetchAPI<TResponseDecks>(`/decks`),
   });
 
-  /** Mutations. */
-  const mutation = useMutation({
-    /** @see https://tanstack.com/query/v4/docs/guides/mutations */
-    // mutationFn: (newTodo) => { return axios.post('/todos', newTodo) },
-    mutationFn: handleCreateDeck,
-    onSuccess: () => {
-      /** Invalidate and refetch. */
-      queryClient.invalidateQueries({ queryKey: ['decks'] });
+  /** Mutations.
+   * @see https://tanstack.com/query/v4/docs/guides/mutations
+   * mutationFn: (newTodo) => { return axios.post('/todos', newTodo) }
+   */
+  const mutationPostDeck = useMutation({
+    mutationFn: postNewDeck,
+    onSuccess: async (response: { deck: IDeck }) => {
+      await queryClient.refetchQueries(['decks'], {});
+      await toastNotify(`Deck ${response.deck.title} created`);
+      setTitle('');
+    },
+    onError: async (error: Error) => {
+      throw new Error(`Unable to create deck: ${error.message}`, {
+        cause: error,
+      });
     },
   });
 
   /**
    * Creates a new deck.
    *
-   * @param  e The form event.
+   * @param e The form event.
    */
   async function handleCreateDeck(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // Tell HTML to avoid clearing the form.
-    const updated = await fetch('http://localhost:8080/api/decks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title }),
-    })
-      .then((res: Response) => res.json())
-      .catch((err: any) => console.error('Failed to create deck.', err));
-
-    toastNotify(`Created ${updated.deck.title}`);
-    setTitle('');
+    mutationPostDeck.mutate(title);
   }
 
   return (
     <Layout>
       <HomeHero props={{ handleCreateDeck, title, setTitle }} />
-      <HomeDecks props={{ query, mutation }} />
+      <HomeDecks props={{ query, mutation: mutationPostDeck }} />
       <HomeDnDList props={{ containers }} />
     </Layout>
   );
@@ -117,17 +117,9 @@ function HomeHero({ props }: { props: THomeHeroProps }): JSX.Element {
   );
 }
 
-type THomeDecksProps = {
-  query: UseQueryResult<void | TResponseDecks, unknown>;
-  mutation: UseMutationResult<
-    void,
-    unknown,
-    React.FormEvent<HTMLFormElement>,
-    unknown
-  >;
-};
+// type THomeDecksProps = { };
 
-function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
+function HomeDecks({ props }: { props: any }): JSX.Element {
   const { query, mutation } = props;
 
   return (
