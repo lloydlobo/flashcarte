@@ -10,7 +10,13 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from '@tanstack/react-query';
 
 import { DeckCard, fetchAPI, IDeck, TResponseDecks } from '../components/Decks';
 import { DndList, TContainerDnD } from '../components/DndList';
@@ -19,7 +25,9 @@ import { BRAND } from '../constants/brand.constants';
 import { Layout } from '../layout/Layout';
 import { toastNotify } from '../helpers/toast-notify.helpers';
 
-function postNewDeck(title: IDeck['title']): Promise<any> {
+export function postNewDeck(
+  title: IDeck['title'],
+): Promise<{ deck: IDeck | any }> {
   return fetch('http://localhost:8080/api/decks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -33,13 +41,11 @@ export function Home() {
 
   /**  Access the client. */
   const queryClient = useQueryClient();
-
   /** Queries. */
-  const query = useQuery({
+  const query: UseQueryResult<void | TResponseDecks, unknown> = useQuery({
     queryKey: ['decks'],
     queryFn: () => fetchAPI<TResponseDecks>(`/decks`),
   });
-
   /** Mutations.
    * @see https://tanstack.com/query/v4/docs/guides/mutations
    * mutationFn: (newTodo) => { return axios.post('/todos', newTodo) }
@@ -60,14 +66,12 @@ export function Home() {
 
   /**
    * Creates a new deck.
-   *
    * @param e The form event.
    */
   async function handleCreateDeck(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // Tell HTML to avoid clearing the form.
     mutationPostDeck.mutate(title);
   }
-
   return (
     <Layout>
       <HomeHero props={{ handleCreateDeck, title, setTitle }} />
@@ -117,40 +121,50 @@ function HomeHero({ props }: { props: THomeHeroProps }): JSX.Element {
   );
 }
 
-// type THomeDecksProps = { };
+type THomeDecksProps = {
+  query: UseQueryResult<void | TResponseDecks, unknown>;
+  mutation: UseMutationResult<{ deck: IDeck }, Error, string, unknown>;
+};
 
-function HomeDecks({ props }: { props: any }): JSX.Element {
-  const { query, mutation } = props;
+function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
+  const { data, isLoading, isError, error } = props.query;
 
-  return (
-    <section id="decks">
-      <Container>
-        {query.data?.decks.length ? (
-          <SimpleGrid
-            cols={4}
-            spacing="lg"
-            breakpoints={[
-              { maxWidth: 980, cols: 3, spacing: 'md' },
-              { maxWidth: 755, cols: 2, spacing: 'sm' },
-              { maxWidth: 600, cols: 2, spacing: 'sm' },
-            ]}
-          >
-            {query.data.decks.map(
-              (deck: IDeck, index: number): JSX.Element => (
-                <DeckCard
-                  key={`deck-${deck._id}}-${index}`}
-                  title={deck.title}
-                  mutation={mutation}
-                />
-              ),
-            )}
-          </SimpleGrid>
-        ) : (
-          <Text>No decks yet.</Text>
-        )}
-      </Container>
-    </section>
-  );
+  if (isError) return <Center>Error: {(error as any).message}</Center>;
+  if (isLoading) return <Center>Data is loading...</Center>;
+
+  if (!isError && !isLoading && data) {
+    return (
+      <section id="decks">
+        <Container>
+          {!data.decks.length ? (
+            <Center>No decks yet.</Center>
+          ) : (
+            <SimpleGrid
+              cols={4}
+              spacing="lg"
+              breakpoints={[
+                { maxWidth: 980, cols: 3, spacing: 'md' },
+                { maxWidth: 755, cols: 2, spacing: 'sm' },
+                { maxWidth: 600, cols: 2, spacing: 'sm' },
+              ]}
+            >
+              {[...data.decks].reverse().map(
+                (deck: IDeck, index: number): JSX.Element => (
+                  <DeckCard
+                    key={`deck-${deck._id}}-${index}`}
+                    title={deck.title}
+                    mutation={props.mutation}
+                  />
+                ),
+              )}
+            </SimpleGrid>
+          )}
+        </Container>
+      </section>
+    );
+  } else {
+    return <Center>Something went wrong: {(error as any).message}</Center>;
+  }
 }
 
 type THomeDnDListProps = {
