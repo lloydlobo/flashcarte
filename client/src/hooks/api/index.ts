@@ -1,2 +1,2 @@
-export * from './use-query-get-decks.hooks.api';
-export * from './use-query-post-deck.hooks.api';
+export * from './use-get-decks-api.hooks';
+export * from './use-post-deck-api.hooks';
