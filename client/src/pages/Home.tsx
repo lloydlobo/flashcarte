@@ -7,9 +7,9 @@ import { Deck, TDeck, TResponseDecks } from '../components/Deck';
 import { DndList, TContainerDnD } from '../components/DndList';
 import { HeroSection } from '../components/ui/Hero';
 import { BRAND } from '../constants/brand.constants';
+import { getDecksAPI } from '../helpers/api/get-decks-api.helpers';
 import { toastNotify } from '../helpers/toast-notify.helpers';
 import { Layout } from '../layout/Layout';
-import { getDecksAPI } from '../helpers/api/get-decks-api.helpers';
 
 export function postNewDeck(
   title: TDeck['title'],
@@ -42,7 +42,9 @@ export function Home() {
     mutationFn: postNewDeck,
     onSuccess: async (response: { deck: TDeck }) => {
       await queryClient.refetchQueries(['decks'], {});
-      await toastNotify(`Deck ${response.deck.title} created`);
+      toastNotify(`Deck ${response.deck.title} created`, {
+        type: 'success',
+      });
       setTitle('');
     },
     onError: async (error: Error) => {

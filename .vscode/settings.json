@@ -13,7 +13,8 @@
         "/client/src/pages",
         "/client/src/components/ui/Hero",
         "/client/src/layout/Footer",
-        "/client/src/layout/Header"
+        "/client/src/layout/Header",
+        "/client/src/utils/api"
     ],
     "files.exclude": {
         "**/.DS_Store": true,
