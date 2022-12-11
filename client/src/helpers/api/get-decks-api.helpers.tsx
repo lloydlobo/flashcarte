@@ -5,7 +5,7 @@
  * @param options The options to pass to the fetch API.
  */
 
-export async function fetchAPI<ResultType>(
+export async function getDecksAPI<ResultType>(
   path: RequestInit & string,
   options?: Partial<RequestInit>,
 ): Promise<ResultType | void> {

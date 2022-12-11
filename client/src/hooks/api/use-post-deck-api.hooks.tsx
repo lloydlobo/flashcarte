@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
-import { TDeck } from '../../components/Decks';
+import { TDeck } from '../../components/Deck';
 import { toastNotify } from '../../helpers/toast-notify.helpers';
 import { postNewDeck } from '../../pages/Home';
 
@@ -12,7 +12,7 @@ import { postNewDeck } from '../../pages/Home';
  * Custom Hook to handle the post deck mutation with useMutation hook.
  * @param setTitle Function to Set the value of the stateful variable `title`.
  */
-function useQueryMutationPostDeck(
+function useMutationPostDeck(
   setTitle: React.Dispatch<React.SetStateAction<string>>,
 ): UseMutationResult<{ deck: TDeck }, Error, string, unknown> {
   /**
@@ -47,4 +47,4 @@ function useQueryMutationPostDeck(
   });
 }
 
-export { useQueryMutationPostDeck };
+export { useMutationPostDeck as useQueryMutationPostDeck };

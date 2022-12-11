@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { useColorSchemeState } from './hooks/use-color-scheme.hook';
+import { useColorSchemeState } from './hooks/use-color-scheme.hooks';
 import { Home } from './pages';
 
 /** Create a client */

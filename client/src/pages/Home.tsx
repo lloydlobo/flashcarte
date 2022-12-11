@@ -1,18 +1,15 @@
 import { useState } from 'react';
 
-import {
-  Button, Center, Container, Flex, SimpleGrid, TextInput, Title,
-} from '@mantine/core'; // prettier-ignore
-import {
-  useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResult,
-} from '@tanstack/react-query'; // prettier-ignore
+import { Button, Center, Container, Flex, SimpleGrid, TextInput, Title, } from '@mantine/core'; // prettier-ignore
+import { useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResult, } from '@tanstack/react-query'; // prettier-ignore
 
-import { Deck, fetchAPI, TDeck, TResponseDecks } from '../components/Decks';
+import { Deck, TDeck, TResponseDecks } from '../components/Deck';
 import { DndList, TContainerDnD } from '../components/DndList';
 import { HeroSection } from '../components/ui/Hero';
 import { BRAND } from '../constants/brand.constants';
 import { toastNotify } from '../helpers/toast-notify.helpers';
 import { Layout } from '../layout/Layout';
+import { getDecksAPI } from '../helpers/api/get-decks-api.helpers';
 
 export function postNewDeck(
   title: TDeck['title'],
@@ -22,7 +19,7 @@ export function postNewDeck(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: title }),
   }).then((response) => response.json());
-} //// .then(async () => { await console.log(`Deck ${newDeckTitle} created`) });
+}
 
 export function Home() {
   const [title, setTitle] = useState<string>('');
@@ -30,11 +27,13 @@ export function Home() {
 
   /**  Access the client. */
   const queryClient = useQueryClient();
+
   /** Queries. */
   const query: UseQueryResult<void | TResponseDecks, unknown> = useQuery({
     queryKey: ['decks'],
-    queryFn: () => fetchAPI<TResponseDecks>(`/decks`),
+    queryFn: () => getDecksAPI<TResponseDecks>(`/decks`),
   });
+
   /** Mutations.
    * @see https://tanstack.com/query/v4/docs/guides/mutations
    * mutationFn: (newTodo) => { return axios.post('/todos', newTodo) }

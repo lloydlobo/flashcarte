@@ -5,6 +5,6 @@
  * @returns {Promise<void>}
  */
 
-export async function deleteDeck() {
+export async function deleteDeckAPI() {
   throw new Error('deleteDeck not implemented.');
 }

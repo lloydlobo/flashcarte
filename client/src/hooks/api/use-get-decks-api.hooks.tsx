@@ -1,11 +1,12 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
-import { fetchAPI, TResponseDecks } from '../../components/Decks';
+import { TResponseDecks } from '../../components/Deck';
+import { getDecksAPI } from '../../helpers/api/get-decks-api.helpers';
 
 /**
  * Custom Hook to fetch all decks with useQuery hook.
  */
-function useQueryGetDecks(): UseQueryResult<void | TResponseDecks, unknown> {
+function useGetDecks(): UseQueryResult<void | TResponseDecks, unknown> {
   return useQuery({
     /** Query key for useQuery. */
     queryKey: ['decks'],
@@ -13,8 +14,8 @@ function useQueryGetDecks(): UseQueryResult<void | TResponseDecks, unknown> {
      * Query function to get all decks.
      * @param `/decks` API endpoint to fetch all decks from.
      */
-    queryFn: () => fetchAPI<TResponseDecks>(`/decks`),
+    queryFn: () => getDecksAPI<TResponseDecks>(`/decks`),
   });
 }
 
-export { useQueryGetDecks };
+export { useGetDecks };

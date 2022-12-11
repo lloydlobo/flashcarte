@@ -9,7 +9,7 @@
         "/client/src/components/layout/Navbar",
         "/client/src/components/Sortable/",
         "/client/src/components/ui/",
-        "/client/src/components/Decks",
+        "/client/src/components/Deck",
         "/client/src/pages",
         "/client/src/components/ui/Hero",
         "/client/src/layout/Footer",

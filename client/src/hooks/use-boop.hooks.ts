@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { SpringValue, useSpring } from 'react-spring';
 
-import { usePrefersReducedMotion } from './use-prefers-reduced-motion.hook';
+import { usePrefersReducedMotion } from './use-prefers-reduced-motion.hooks';
 
 export interface ISpring {
   transform: string;
