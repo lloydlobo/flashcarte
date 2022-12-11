@@ -39,7 +39,7 @@ class DeckService {
     public async findMany(): Promise<DeckDocument[] | null> {
         try {
             /** Creates a `find` query: gets a list of documents that match `filter`. */
-            const decks = await this.deck.find({});
+            const decks = this.deck.find({});
 
             return decks;
         } catch (err: unknown) {
@@ -54,10 +54,26 @@ class DeckService {
     public async findById(_id: typeof ObjectId): Promise<DeckDocument | null> {
         try {
             /** Finds a single document by its _id field. */
-            const deck = await this.deck.findById(_id);
+            const deck = this.deck.findById(_id);
+
             return deck;
         } catch (err: unknown) {
             throw new Error(`Unable to find deck: ${err}`);
+        }
+    }
+
+    /**
+     * Delete a deck document with id of `_id` in collection.
+     * @param  _id The request id of the deck.
+     */
+    public async deleteOne(_id: typeof ObjectId): Promise<DeckDocument | null> {
+        try {
+            /** Creates a `findByIdAndDelete` query, filtering by the given `_id`. */
+            const deck = this.deck.findByIdAndDelete(_id);
+
+            return deck;
+        } catch (err: unknown) {
+            throw new Error(`Unable to delete deck: ${err}`);
         }
     }
 }

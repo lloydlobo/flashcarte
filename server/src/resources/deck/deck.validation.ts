@@ -12,9 +12,13 @@ const update = Joi.object({
     // description: Joi.string().required(),
 });
 
+const deleteOne = Joi.object({
+    _id: Joi.string().required(),
+});
+
 /**
  * Contains all validation needed to perform actions on Deck results.
  */
-const validate = { create, update };
+const validate = { create, update, deleteOne };
 
 export { validate };

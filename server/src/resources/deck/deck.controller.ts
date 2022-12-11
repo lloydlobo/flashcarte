@@ -5,12 +5,18 @@ import { DeckService } from '@/resources/deck/deck.service';
 import { validate } from '@/resources/deck/deck.validation';
 import { HttpException } from '@/utils/exceptions/http.exception';
 import { Controller } from '@/utils/interfaces/controller.interface';
-import { threadId } from 'worker_threads';
 
+/**
+ * Default backend API Endpoints.
+ * Method extends 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'.
+ * @example
+ *     app.get('/user/:id', (req, res) => res.send(req.params.id)); // implicitly `ParamsDictionary`
+ *     app.get<ParamsArray>(/user\/(.*)/, (req, res) => res.send(req.params[0]));
+ *     app.get<ParamsArray>('/user/*', (req, res) => res.send(req.params[0]));
+ */
 class DeckController implements Controller {
     public path = '/decks';
     public router = Router(); // Subrouters.
-
     private DeckService = new DeckService();
 
     /**
@@ -26,14 +32,6 @@ class DeckController implements Controller {
     }
 
     /**
-     * Default backend API Endpoints.
-     * Method extends 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'.
-     * @example
-     *     app.get('/user/:id', (req, res) => res.send(req.params.id)); // implicitly `ParamsDictionary`
-     *     app.get<ParamsArray>(/user\/(.*)/, (req, res) => res.send(req.params[0]));
-     *     app.get<ParamsArray>('/user/*', (req, res) => res.send(req.params[0]));
-     */
-    /**
      * Initializes the routes for the DeckController.
      * To create resources use path that follows REST API paradigm.
      * * For Example, to create a deck use path: `/decks`.
@@ -45,15 +43,16 @@ class DeckController implements Controller {
      * ```
      * @see https://youtu.be/1o9YOHeKhNQ?t=4452
      * @see https://github.com/JasonMerrett/nodejs-api-from-scratch/blob/master/src/resources/user/user.controller.ts
-     */
+     */ //prettier-ignore
     private initializeRoutes(): void {
         /**
          * @param `${this.path}` The path to the resource. '/decks'.
          * @param validationMiddleware(validate.create) Validate request body against schema.
          * @param this.create Create a new resource with request handler.
          */
-        this.router.post( `${this.path}`, validationMiddleware(validate.create), this.create,); // prettier-ignore
-        this.router.get(`${this.path}`, this.findMany);
+        this.router.post( `${this.path}`, validationMiddleware(validate.create), this.create,);
+        this.router.get(`${this.path}`, this.findMany,);
+        this.router.delete( `${this.path}/delete/:_id`, validationMiddleware(validate.deleteOne), this.deleteOne,);
     }
 
     /**
@@ -94,6 +93,20 @@ class DeckController implements Controller {
             res.status(201).json({ decks: decks });
         } catch (err) {
             next(new HttpException(400, `Cannot find decks: ${err}`));
+        }
+    };
+
+    private deleteOne = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const { _id } = req.body;
+            const deck = await this.DeckService.deleteOne(_id);
+            res.status(201).json({ deck: deck });
+        } catch (err) {
+            next(new HttpException(400, `Cannot delete deck: ${err}`));
         }
     };
 
