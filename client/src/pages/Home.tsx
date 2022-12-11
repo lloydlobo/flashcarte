@@ -10,6 +10,7 @@ import { BRAND } from '../constants/brand.constants';
 import { getDecksAPI } from '../helpers/api/get-decks-api.helpers';
 import { toastNotify } from '../helpers/toast-notify.helpers';
 import { Layout } from '../layout/Layout';
+import { deleteDeckAPI } from '../helpers/api/delete-deck-api.helpers';
 
 export function postNewDeck(
   title: TDeck['title'],
@@ -116,27 +117,6 @@ type THomeDecksProps = {
   mutation: UseMutationResult<{ deck: TDeck }, Error, string, unknown>;
 };
 
-/**
- * Mutation async fetch function to delete a deck.
- * @param id The id of the deck to delete.
- * @method DELETE by FindOneById Method.
- * @route /api/decks/
- * @endpoint /delete/:id
- * @example https://localhost:8080/api/decks/delete/:id
- * @see https://github.com/lloydlobo/todo/blob/v2/express/routes/routes.js
- */
-export async function deleteDeck(id: TDeck['_id']) {
-  const response: Response = await fetch(
-    `http://localhost:8080/api/decks/delete/${id}`,
-    {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _id: id }),
-    },
-  );
-  return await response.json();
-}
-
 function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
   /** TODO:  Access the client. */ //// const queryClient = useQueryClient();
   /**
@@ -146,7 +126,7 @@ function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
    * @see https://tanstack.com/query/v4/docs/guides/mutations
    */ // prettier-ignore
   const mutationDeleteDeck = useMutation({
-    mutationFn: deleteDeck, // deleteDeck(id: TDeck['_id']): Promise<any>
+    mutationFn: deleteDeckAPI, // deleteDeck(id: TDeck['_id']): Promise<any>
     onSuccess: async () => { toastNotify('Deck deleted successfully.'); },
     onError: async () => toastNotify('Error deleting deck. Please try again later.'),
     onSettled: async () => await toastNotify('settled'),
