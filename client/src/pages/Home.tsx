@@ -1,33 +1,22 @@
 import { useState } from 'react';
 
 import {
-  Button,
-  Center,
-  Container,
-  Flex,
-  SimpleGrid,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+  Button, Center, Container, Flex, SimpleGrid, TextInput, Title,
+} from '@mantine/core'; // prettier-ignore
 import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from '@tanstack/react-query';
+  useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResult,
+} from '@tanstack/react-query'; // prettier-ignore
 
-import { DeckCard, fetchAPI, IDeck, TResponseDecks } from '../components/Decks';
+import { Deck, fetchAPI, TDeck, TResponseDecks } from '../components/Decks';
 import { DndList, TContainerDnD } from '../components/DndList';
 import { HeroSection } from '../components/ui/Hero';
 import { BRAND } from '../constants/brand.constants';
-import { Layout } from '../layout/Layout';
 import { toastNotify } from '../helpers/toast-notify.helpers';
+import { Layout } from '../layout/Layout';
 
 export function postNewDeck(
-  title: IDeck['title'],
-): Promise<{ deck: IDeck | any }> {
+  title: TDeck['title'],
+): Promise<{ deck: TDeck | any }> {
   return fetch('http://localhost:8080/api/decks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -52,7 +41,7 @@ export function Home() {
    */
   const mutationPostDeck = useMutation({
     mutationFn: postNewDeck,
-    onSuccess: async (response: { deck: IDeck }) => {
+    onSuccess: async (response: { deck: TDeck }) => {
       await queryClient.refetchQueries(['decks'], {});
       await toastNotify(`Deck ${response.deck.title} created`);
       setTitle('');
@@ -123,12 +112,46 @@ function HomeHero({ props }: { props: THomeHeroProps }): JSX.Element {
 
 type THomeDecksProps = {
   query: UseQueryResult<void | TResponseDecks, unknown>;
-  mutation: UseMutationResult<{ deck: IDeck }, Error, string, unknown>;
+  mutation: UseMutationResult<{ deck: TDeck }, Error, string, unknown>;
 };
 
-function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
-  const { data, isLoading, isError, error } = props.query;
+/**
+ * Mutation async fetch function to delete a deck.
+ * @param id The id of the deck to delete.
+ * @method DELETE by FindOneById Method.
+ * @route /api/decks/
+ * @endpoint /delete/:id
+ * @example https://localhost:8080/api/decks/delete/:id
+ * @see https://github.com/lloydlobo/todo/blob/v2/express/routes/routes.js
+ */
+export async function deleteDeck(id: TDeck['_id']) {
+  const response: Response = await fetch(
+    `http://localhost:8080/api/decks/delete/${id}`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _id: id }),
+    },
+  );
+  return await response.json();
+}
 
+function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
+  /** TODO:  Access the client. */ //// const queryClient = useQueryClient();
+  /**
+   * Mutations
+   * // onSuccess: async (response: { deck: TDeck }) => { await queryClient.refetchQueries(['decks'], {}); await toastNotify(`Deck ${response.deck.title} created`); }, //     // TODO: show snackbar //     // TODO: refetch //     // TODO: update state //     // TODO: update UI //     // TODO: update localStorage //     // TODO: update cache
+   * // onError: async (error: Error) => { throw new Error(`Unable to create deck: ${error.message}`, { cause: error, }); },
+   * @see https://tanstack.com/query/v4/docs/guides/mutations
+   */ // prettier-ignore
+  const mutationDeleteDeck = useMutation({
+    mutationFn: deleteDeck, // deleteDeck(id: TDeck['_id']): Promise<any>
+    onSuccess: async () => { toastNotify('Deck deleted successfully.'); },
+    onError: async () => toastNotify('Error deleting deck. Please try again later.'),
+    onSettled: async () => await toastNotify('settled'),
+  });
+
+  const { data, isLoading, isError, error } = props.query;
   if (isError) return <Center>Error: {(error as any).message}</Center>;
   if (isLoading) return <Center>Data is loading...</Center>;
 
@@ -149,11 +172,11 @@ function HomeDecks({ props }: { props: THomeDecksProps }): JSX.Element {
               ]}
             >
               {[...data.decks].reverse().map(
-                (deck: IDeck, index: number): JSX.Element => (
-                  <DeckCard
+                (deck: TDeck, index: number): JSX.Element => (
+                  <Deck
                     key={`deck-${deck._id}}-${index}`}
-                    title={deck.title}
-                    mutation={props.mutation}
+                    deck={deck}
+                    mutation={mutationDeleteDeck}
                   />
                 ),
               )}

@@ -1,8 +1,8 @@
 export type TResponseDecks = {
-  decks: IDeck[];
+  decks: TDeck[];
 };
 
-export interface IDeck {
+export type TDeck = {
   _id: string;
   title: string;
-}
+};
